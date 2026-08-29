@@ -41,20 +41,7 @@ A Netflix account (active subscription).
 
 **🔧 Installation & Usage**
 
-Clone the repository
-
-bash
-git clone https://github.com/yourusername/netflix-scraper.git
-cd netflix-scraper
-Install dependencies
-
-bash
-pip install -r requirements.txt
-Run the script
-
-bash
-python netflix_scraper.py
-
+install and setup all the libraries from the import section.
 Enter your Netflix email and password when prompted (they are not stored anywhere).
 Type a title (e.g., Stranger Things) and press Enter.
 View the results, then search again or type quit to exit.
