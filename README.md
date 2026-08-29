@@ -23,7 +23,7 @@ Main cast members
 Genres / categories
 
 Interactive command-line interface – keep searching until you type quit.
-
+<hr>
 🛠️ How It Works
 Selenium with ChromeDriver opens a browser.
 
@@ -34,25 +34,28 @@ It then constructs a search URL and clicks the first result.
 On the title’s detail page, it scrapes the required fields using XPath selectors.
 
 The information is printed to the console.
-
+<hr>
 📦 Requirements
 Python 3.6+
 
 Google Chrome browser installed.
 
 A Netflix account (active subscription).
-
+<hr>
 🔧 Installation & Usage
 Clone the repository
+
 
 bash
 git clone https://github.com/yourusername/netflix-scraper.git
 cd netflix-scraper
 Install dependencies
 
+
 bash
 pip install -r requirements.txt
 Run the script
+
 
 bash
 python netflix_scraper.py
@@ -61,7 +64,7 @@ Enter your Netflix email and password when prompted (they are not stored anywher
 Type a title (e.g., Stranger Things) and press Enter.
 
 View the results, then search again or type quit to exit.
-
+<hr>
 📂 Project Structure
 text
 .
@@ -73,8 +76,10 @@ The script uses XPath selectors that depend on Netflix’s current HTML structur
 If your account has two‑factor authentication (2FA), this script will not work.
 
 The script is intentionally kept simple for beginners – no error handling for many edge cases.
-
+<hr>
 🔮 Possible Improvements (for you to try)
+---
+
 Add support for 2FA.
 
 Save results to a file (CSV/JSON).
@@ -84,8 +89,8 @@ Use environment variables for credentials.
 Implement a GUI or a web interface.
 
 Handle pagination or multiple search results.
-
+<hr>
 📄 License
-This project is licensed under the MIT License – feel free to use and modify it.
+no license... just use it
 
 Happy coding! 🎬
