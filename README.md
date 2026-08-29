@@ -71,11 +71,11 @@ The script is intentionally kept simple because its just a simple project for be
 
 **🔮 Possible Improvements (for you to try)**
 
-Add support for 2FA.
-Save results to a file (CSV/JSON).
-Use environment variables for credentials.
-Implement a GUI or a web interface.
-Handle pagination or multiple search results.
+-Add support for 2FA.
+-Save results to a file (CSV/JSON).
+-Use environment variables for credentials.
+-Implement a GUI or a web interface.
+-Handle pagination or multiple search results.
 
 <hr>
 
@@ -84,5 +84,4 @@ no license... just use it
 
 **Happy coding! 🎬**
 
-- item 1
-- item 1
+
