@@ -1,0 +1,133 @@
+import requests
+import csv
+import os
+import smtplib
+from email.mime.text import MIMEText
+
+base_url = "https://rest.arbeitsagentur.de/infosysbub/absuche/pc/v1/ausbildungsangebot"
+headers = {'x-api-key': 'infosysbub-absuche'}
+
+
+def search_listings(ort, sw):
+    url = base_url + "?ort=" + ort + "&sw=" + sw
+    response = requests.get(url, headers=headers)
+    print("Status:", response.status_code)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print("Request failed.")
+        return None
+
+
+def save_to_csv(data, filename="bwb.csv"):
+    with open(filename, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["titel", "zugang", "email", "bildungsanbieter"])
+
+        for stelle in data["_embedded"]["termine"]:
+            angebot = stelle["angebot"]
+            titel = angebot.get("titel")
+            zugang = angebot.get("zugang") or "keine Angabe"
+            email = angebot.get("bildungsanbieter", {}).get("email")
+            bildungsanbieter = angebot.get("bildungsanbieter", {}).get("name")
+
+            writer.writerow([titel, zugang, email, bildungsanbieter])
+
+    print(f"Saved listings to {filename}")
+
+
+def generate_drafts(data, output_folder="drafts"):
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    count = 0
+    for stelle in data["_embedded"]["termine"]:
+        angebot = stelle["angebot"]
+        titel = angebot.get("titel")
+        email = angebot.get("bildungsanbieter", {}).get("email")
+        bildungsanbieter = angebot.get("bildungsanbieter", {}).get("name")
+
+        if not email:
+            continue
+        draft = f"""Sehr geehrte Damen und Herren von {bildungsanbieter},
+
+hiermit bewerbe ich mich um die Ausbildung als {titel}.
+
+[Hier deinen eigenen Absatz einfügen: warum du dich interessierst, deine Motivation, relevante Erfahrung.]
+
+Ich freue mich auf eine Rückmeldung.
+
+Mit freundlichen Grüßen,
+Alaedine Touati
+"""
+
+        safe_name = bildungsanbieter.replace("/", "-").replace(" ", "_") if bildungsanbieter else "unknown"
+        path = f"{output_folder}/{safe_name}.txt"
+
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(draft)
+
+        count += 1
+
+    print(f"Generated {count} draft(s) in ./{output_folder}/")
+
+
+def send_reviewed_emails(data, my_email, app_password):
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(my_email, app_password)
+
+    for stelle in data["_embedded"]["termine"]:
+        angebot = stelle["angebot"]
+        titel = angebot.get("titel")
+        email = angebot.get("bildungsanbieter", {}).get("email")
+        bildungsanbieter = angebot.get("bildungsanbieter", {}).get("name")
+
+        if not email:
+            continue
+
+        safe_name = bildungsanbieter.replace("/", "-").replace(" ", "_") if bildungsanbieter else "unknown"
+        draft_path = f"drafts/{safe_name}.txt"
+
+        if not os.path.exists(draft_path):
+            continue
+
+        with open(draft_path, "r", encoding="utf-8") as f:
+            body = f.read()
+
+        print(f"\n--- Preview: {bildungsanbieter} ({email}) ---")
+        print(body)
+        confirm = input("Send this one? (y/n): ")
+
+        if confirm.lower() == "y":
+            msg = MIMEText(body)
+            msg["Subject"] = f"Bewerbung: {titel}"
+            msg["From"] = my_email
+            msg["To"] = email
+            u_want = input('y or n')
+            if u_want == 'y':
+               server.sendmail(my_email, email, msg.as_string())
+            else:
+                print('draft')
+        else:
+            print("Skipped.")
+
+    server.quit()
+
+
+if __name__ == "__main__":
+    ort = input("Where you wanna work (region code, e.g. BE, NW): ")
+    sw = input("What exactly you wanna work: ")
+
+    data = search_listings(ort, sw)
+
+    if data:
+        save_to_csv(data)
+        generate_drafts(data)
+
+        proceed = input("\nReview and send emails now? (y/n): ")
+        if proceed.lower() == "y":
+            my_email = input("Your Gmail address: ")
+            app_password = input("Gmail App Password: ")
+            send_reviewed_emails(data, my_email, app_password)
